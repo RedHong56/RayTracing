@@ -11,6 +11,7 @@ int main()
 
     for (int j = 0; j < ImageHeight; j++)
     {
+        std::clog << " \rScanlines remain" << (ImageHeight - j) << ' ' << std::flush;
         for (int i = 0; i < ImageWidth; i++)
         {
             auto r = double(i) / (ImageWidth - 1);
@@ -21,10 +22,11 @@ int main()
             int ig = int(255.999 * g);
             int ib = int(255.999 * b);
 
-            std::cout << ir << ' ' << ig << ' ' << ib << '\n';
+            std::cout << ir << ' ' << ig << ' ' << ib << '\n'; // Create IMG
             
         }
     }
+	std::clog << "\nDone.              \n";
 
     return 0;
 }
