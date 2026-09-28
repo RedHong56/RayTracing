@@ -7,12 +7,11 @@
 
 using Color = Vec3; // RGB color alias
 
-void WriteColor(std::ostream& out, Color pixel_color, int samples_per_pixel)
+void WriteColor(std::ostream& out, Color pixelColor)
 {
-	auto r = pixel_color.x();
-	auto g = pixel_color.y();
-	auto b = pixel_color.z();
-
+	auto r = pixelColor.x();
+	auto g = pixelColor.y();
+	auto b = pixelColor.z();
 	// 0~1 -> 0~255
 	int rByte = int(255.999 * r);
 	int gByte = int(255.999 * g);
