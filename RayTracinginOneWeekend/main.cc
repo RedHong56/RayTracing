@@ -20,7 +20,7 @@ int main()
 	//Camera
 	auto focalLength = 1.0;
 	auto viewportHeight = 2.0;
-	auto viewportWidth = viewportHight * (double)imageWidth / (double)imageHeight;
+	auto viewportWidth = viewportHeight * (double)imageWidth / (double)imageHeight;
 	auto cameraCenter = Point3(0, 0, 0);
 
 	auto viewportU = Vec3(viewportWidth, 0, 0); // horizontal vector
