@@ -6,7 +6,10 @@
 
 Color RayColor(const Ray& r)
 {
-	return Color(0, 0, 0);
+	Vec3 unitDirection = UnitVector(r.Direction());
+	auto a = 0.5 * (unitDirection.y() + 1.0);
+
+	return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0);
 }
 
 int main()
@@ -30,14 +33,14 @@ int main()
 	auto pixelDeltaV = viewportV / imageHeight;
 
 	auto viewportUpperLeft = cameraCenter - Vec3(0, 0, focalLength) - viewportU / 2 + viewportV / 2;
-	auto pixel00Loc = viewportUpperLeft + 0.5 *(pixelDeltaU + pixelDeltaV);
+	auto pixel00Loc = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
 
 	// Render
 	std::cout << "P3\n" << imageWidth << " " << imageHeight << "\n255\n";
 
-	for(int j = 0 ; j < imageHeight; ++j)
+	for (int j = 0; j < imageHeight; ++j)
 	{
-		for(int i = 0; i < imageWidth; ++i)
+		for (int i = 0; i < imageWidth; ++i)
 		{
 			auto pixelLoc = pixel00Loc + (double)i * pixelDeltaU - (double)j * pixelDeltaV;
 			auto rayDirection = pixelLoc - cameraCenter;
@@ -47,4 +50,5 @@ int main()
 			WriteColor(std::cout, pixelColor);
 		}
 		std::clog << "\rDone.                                   \n";
+	}
 }
