@@ -28,7 +28,7 @@ double HitSphere(const Point3& center, double radius, const Ray& r)
 Color RayColor(const Ray& r, const Hittable& world)
 {
 	HitRecord hitRecord;
-	if(world.Hit(r, 0.0, Infinity, hitRecord))
+	if(world.Hit(r, Interval(0.0, Infinity), hitRecord))
 	{
 		return 0.5 * Color(hitRecord.Normal + Color(1.0, 1.0, 1.0));
 	}

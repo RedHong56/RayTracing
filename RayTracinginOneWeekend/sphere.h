@@ -15,8 +15,7 @@ public:
 
     bool Hit(
         const Ray& ray,
-        double rayTMin,
-        double rayTMax,
+        const Interval& rayT,
         HitRecord& hitRecord
     ) const override
     {
@@ -36,10 +35,10 @@ public:
 
         // Find the nearest root that lies in the acceptable range
         auto root = (h - squareRootDiscriminant) / a;
-        if (root <= rayTMin || rayTMax <= root)
+        if (!rayT.Surrounds(root))
         {
             root = (h + squareRootDiscriminant) / a;
-            if (root <= rayTMin || rayTMax <= root)
+            if (!rayT.Surrounds(root))
             {
                 return false;
             }
