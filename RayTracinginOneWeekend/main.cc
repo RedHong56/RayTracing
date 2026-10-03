@@ -1,3 +1,9 @@
+#include "rtweekend.h"
+
+#include "hittable.h"
+#include "hittable_list.h"
+#include "sphere.h"
+
 #include "color.h"
 #include "ray.h"
 #include "vec3.h"
@@ -19,16 +25,12 @@ double HitSphere(const Point3& center, double radius, const Ray& r)
 	return (h - std::sqrt(discriminant)) / a;
 }	
 
-Color RayColor(const Ray& r)
+Color RayColor(const Ray& r, const Hittable& world)
 {
-	auto t = HitSphere(Point3(0, 0, -1), 0.5, r);
-	if (t > 0.0)
+	HitRecord hitRecord;
+	if(world.Hit(r, 0.0, Infinity, hitRecord))
 	{
-		Vec3 surfaceNormal = UnitVector(r.At(t) - Vec3(0, 0, -1.0));
-		return 0.5 * Color(
-			surfaceNormal.x() + 1.0, 
-			surfaceNormal.y() + 1.0, 
-			surfaceNormal.z() + 1.0);
+		return 0.5 * Color(hitRecord.Normal + Color(1.0, 1.0, 1.0));
 	}
 
 	Vec3 unitDirection = UnitVector(r.Direction());
@@ -46,6 +48,11 @@ int main()
 	int imageHeight = int(imageWidth / aspectRatio); // calculate image height
 	imageHeight = (imageHeight < 1) ? 1 : imageHeight;
 
+	//World
+	HittableList world;
+	world.Add(std::make_shared<Sphere>(Point3(0, 0, -1), 0.5));
+	world.Add(std::make_shared<Sphere>(Point3(0, -100.5, -1), 100));
+
 	//Camera
 	auto focalLength = 1.0;
 	auto viewportHeight = 2.0;
@@ -53,28 +60,40 @@ int main()
 	auto cameraCenter = Point3(0, 0, 0);
 
 	auto viewportU = Vec3(viewportWidth, 0, 0); // horizontal vector
-	auto viewportV = Vec3(0, viewportHeight, 0); // vertical vector
+	auto viewportV = Vec3(0, -viewportHeight, 0); // vertical vector
 
 	auto pixelDeltaU = viewportU / imageWidth;
 	auto pixelDeltaV = viewportV / imageHeight;
 
-	auto viewportUpperLeft = cameraCenter - Vec3(0, 0, focalLength) - viewportU / 2 + viewportV / 2;
+	auto viewportUpperLeft = 
+		cameraCenter 
+		- Vec3(0, 0, focalLength) 
+		- viewportU / 2 
+		- viewportV / 2;
 	auto pixel00Loc = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
 
 	// Render
 	std::cout << "P3\n" << imageWidth << " " << imageHeight << "\n255\n";
 
-	for (int j = 0; j < imageHeight; ++j)
+	for (int scanlineIndex = 0; scanlineIndex < imageHeight; scanlineIndex++)
 	{
-		for (int i = 0; i < imageWidth; ++i)
+		std::clog << "\rScanlines remaining: " 
+			<< imageHeight - scanlineIndex
+			<< ' ' 
+			<< std::flush;
+		for (int pixelIndex = 0; pixelIndex < imageWidth; pixelIndex++)
 		{
-			auto pixelLoc = pixel00Loc + (double)i * pixelDeltaU - (double)j * pixelDeltaV;
-			auto rayDirection = pixelLoc - cameraCenter;
+			auto pixelCenter = pixel00Loc 
+				+ (pixelIndex * pixelDeltaU)
+				+ (scanlineIndex * pixelDeltaV);
+
+			auto rayDirection = pixelCenter - cameraCenter;
 			Ray r(cameraCenter, rayDirection);
 
-			Color pixelColor = RayColor(r);
+			Color pixelColor = RayColor(r, world);
 			WriteColor(std::cout, pixelColor);
 		}
-		std::clog << "\rDone.                                   \n";
 	}
+
+	std::clog << "\rDone.                                   \n";
 }
